@@ -4,9 +4,10 @@ import { Genre } from '../model/genre.model';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GenreWrapper } from '../model/GenreWrapped';
+import { Image } from '../model/image.model';
 
 const httpOptions = {
-headers: new HttpHeaders( {'Content-Type': 'application/json'} )
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
 };
 
 
@@ -15,77 +16,88 @@ headers: new HttpHeaders( {'Content-Type': 'application/json'} )
 })
 export class LivreService {
   apiURL: string = 'http://localhost:8080/livres/api';
-  apiURLGen: string ='http://localhost:8080/livres/gen'
-  livres : Livre[]; //un tableau de Livres
+  apiURLGen: string = 'http://localhost:8080/livres/gen'
+  livres !: Livre[]; //un tableau de Livres
   //livre! : Livre;
 
-  constructor(private http : HttpClient) {
+  constructor(private http: HttpClient) {
 
     /*this.genres =[{idGen: 1, dateCreation:new Date("05/17/2023"), nomGen: "Romance"},
     {idGen: 2, dateCreation:new Date("05/17/2023"), nomGen: "Mystere"}]*/
-    this.livres =  [
+    /*this.livres =  [
       {idLivre : 1, auteurLivre : "Victor Hugo",  datePublication : new Date("01/14/1818"), prixLivre:10, quantiteStock:60, titreLivre:"Cosette", genre:{idGen: 1, dateCreation:new Date("05/17/2023"), nomGen: "Romance"}},
       {idLivre : 2, auteurLivre : "Victor Hugo",  datePublication : new Date("01/14/1819"), prixLivre:9, quantiteStock:50, titreLivre:"Cosette", genre:{idGen: 1, dateCreation:new Date("05/17/2023"), nomGen: "Romance"}},
       {idLivre : 3, auteurLivre : "Marie Higgins Clark",datePublication : new Date("12/01/2010"), prixLivre:44, quantiteStock:100, titreLivre:"Pretend you don't see her", genre:{idGen: 2, dateCreation:new Date("05/17/2023"), nomGen: "Mystere"}},
-      ];
-      //this.livre = new Livre(); // Initialize the livre property with an empty instance
+      ];*/
+    //this.livre = new Livre(); // Initialize the livre property with an empty instance
 
   }
 
-  listeLivre(): Observable<Livre[]>{
+  listeLivre(): Observable<Livre[]> {
     return this.http.get<Livre[]>(this.apiURL);
-    }
+  }
 
-    ajouterLivre( liv: Livre):Observable<Livre>{
-      return this.http.post<Livre>(this.apiURL, liv, httpOptions);
-      }
+  ajouterLivre(liv: Livre): Observable<Livre> {
+    return this.http.post<Livre>(this.apiURL, liv, httpOptions);
+  }
 
-      supprimerLivre(id : number) {
-        const url = `${this.apiURL}/${id}`;
-        return this.http.delete(url, httpOptions);
+  supprimerLivre(id: number) {
+    const url = `${this.apiURL}/${id}`;
+    return this.http.delete(url, httpOptions);
+  }
+
+
+  consulterLivre(id: number): Observable<Livre> {
+    const url = `${this.apiURL}/${id}`;
+    return this.http.get<Livre>(url);
+  }
+
+  trierLivres() {
+    this.livres = this.livres.sort((liv1, liv2) => {
+      if (liv1.idLivre !== undefined && liv2.idLivre !== undefined) {
+        if (liv1.idLivre > liv2.idLivre) {
+          return 1;
         }
-
-
-        consulterLivre(id: number): Observable<Livre> {
-          const url = `${this.apiURL}/${id}`;
-          return this.http.get<Livre>(url);
-          }
-
-          trierLivres() {
-            this.livres = this.livres.sort((liv1, liv2) => {
-              if (liv1.idLivre !== undefined && liv2.idLivre !== undefined) {
-                if (liv1.idLivre > liv2.idLivre) {
-                  return 1;
-                }
-                if (liv1.idLivre < liv2.idLivre) {
-                  return -1;
-                }
-              }
-              return 0;
-            });
-          }
+        if (liv1.idLivre < liv2.idLivre) {
+          return -1;
+        }
+      }
+      return 0;
+    });
+  }
 
 
 
-          updateLivre(liv :Livre) : Observable<Livre>
-            {
-                return this.http.put<Livre>(this.apiURL, liv, httpOptions);
-            }
+  updateLivre(liv: Livre): Observable<Livre> {
+    return this.http.put<Livre>(this.apiURL, liv, httpOptions);
+  }
 
 
-          listeGenres():Observable<GenreWrapper>{
-            return this.http.get<GenreWrapper>(this.apiURLGen);
-            }
+  listeGenres(): Observable<GenreWrapper> {
+    return this.http.get<GenreWrapper>(this.apiURLGen);
+  }
 
-            rechercherParGenre(idGen: number):Observable< Livre[]> {
-              const url = `${this.apiURL}/livresgen/${idGen}`;
-              return this.http.get<Livre[]>(url);
-              }
+  rechercherParGenre(idGen: number): Observable<Livre[]> {
+    const url = `${this.apiURL}/livresgen/${idGen}`;
+    return this.http.get<Livre[]>(url);
+  }
 
-            rechercherParTitre(titre : string): Observable< Livre[]> {
-              const url = `${this.apiURL}/livsByTitre/${titre}`;
-              return this.http.get<Livre[]>(url);
-            }
+  rechercherParTitre(titre: string): Observable<Livre[]> {
+    const url = `${this.apiURL}/livsByTitre/${titre}`;
+    return this.http.get<Livre[]>(url);
+  }
+
+
+  uploadImage(file: File, filename: string): Observable<Image> {
+    const imageFormData = new FormData();
+    imageFormData.append('image', file, filename);
+    const url = `${this.apiURL + '/image/upload'}`;
+    return this.http.post<Image>(url, imageFormData);
+  }
+  loadImage(id: number): Observable<Image> {
+    const url = `${this.apiURL + '/image/get/info'}/${id}`;
+    return this.http.get<Image>(url);
+  }
 
 }
 

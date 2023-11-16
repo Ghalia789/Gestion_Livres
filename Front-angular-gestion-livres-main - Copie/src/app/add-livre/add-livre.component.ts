@@ -38,6 +38,13 @@ export class AddLivreComponent implements OnInit {
         this.router.navigate(['livres']);
       });
   }
-
+  uploadedImage!: File;
+  imagePath: any;
+  onImageUpload(event: any) {
+    this.uploadedImage = event.target.files[0];
+    var reader = new FileReader();
+    reader.readAsDataURL(this.uploadedImage);
+    reader.onload = (_event) => { this.imagePath = reader.result; }
+  }
 
 }
